@@ -1,0 +1,25 @@
+#the mod name as displayed in-game
+displayName: "Minfo"
+
+#the internal name of your mod
+name: "minfo"
+
+#your name
+author: "Lao_Hua_Ji"
+
+#the fully qualified main class of the mod
+main: "Minfo.ModMain"
+
+#the mod description as seen in the mod dialog
+description: "A Mindustry Java mod template."
+
+#the mod version
+version: 1.0
+
+#the minimum game build required to run this mod
+minGameVersion: 145
+
+"hidden": true,
+
+#this is a java mod
+java: true
