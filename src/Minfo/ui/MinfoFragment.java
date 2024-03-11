@@ -1,17 +1,30 @@
 package Minfo.ui;
 
+import Minfo.MinfoVars;
+import arc.Core;
+import arc.scene.Element;
 import arc.scene.style.Drawable;
-import arc.scene.ui.Button;
-import arc.scene.ui.ButtonGroup;
-import arc.scene.ui.Image;
+import arc.scene.ui.*;
+import arc.scene.ui.layout.Collapser;
+import arc.scene.ui.layout.Stack;
 import arc.scene.ui.layout.Table;
+import arc.util.Log;
+import arc.util.Scaling;
+import arc.util.Strings;
 import mindustry.Vars;
+import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
+import mindustry.input.DesktopInput;
+import mindustry.input.MobileInput;
+import mindustry.type.ItemStack;
+import mindustry.type.LiquidStack;
+import mindustry.ui.ItemDisplay;
 import mindustry.ui.Styles;
 
-import static mindustry.Vars.ui;
+import static arc.Core.input;
+import static mindustry.Vars.*;
 
 public class MinfoFragment {
     static Table minfo = new Table();
@@ -20,26 +33,168 @@ public class MinfoFragment {
     static ButtonGroup<Button> group = new ButtonGroup<>();
 
     public static void build(){
-        options.table(t -> {
-            t.image().color(Pal.gray).size(392, 4);
-            }
-        ).size(392, 4);
+        options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
+
         buttons.bottom().left();
         buttons.table(buttonTable -> {
             buttonTable.background(Tex.pane2);
-            addButton(buttonTable, Icon.modePvp, "1", () -> {
+            addButton(buttonTable, Icon.zoom, "Info Manager", () -> {
+                //Info Manager Inner Table
+                Table full = new Table();
+                //full.setBackground(Tex.alphaaaa);
+                Table cont = new Table();
+                //cont.setBackground(Tex.alphaaaa);
+
+                full.table().fill();
+
+                Runnable rebuild = () -> {
+
+                    cont.clear();
+
+                    cont.table(t -> {
+                        t.left().top().margin(0,10,0,0);
+                        t.label(() -> "[accent]Range Indicator: ");
+                    }).size(368, 25).pad(5,0,5,0).row();
+
+                    cont.table(t -> {
+                        Table main = new Table();
+                        main.left().top().margin(0,6,0,0);
+                        main.check("", MinfoVars.ShowMendRange, var -> {
+                            MinfoVars.ShowMendRange = !MinfoVars.ShowMendRange;
+                        });
+                        main.label(() -> "Show Mend Range").padLeft(5).wrap().size(280,40);
+                        t.add(main);
+                    }).size(368, 0).pad(0,0,0,0).row();
+
+                    cont.table(t -> {
+                        Table main = new Table();
+                        main.left().top().margin(0,6,0,0);
+                        main.check("", MinfoVars.ShowOverdriveRange, var -> {
+                            MinfoVars.ShowOverdriveRange = !MinfoVars.ShowOverdriveRange;
+                        });
+                        main.label(() -> "Show Overdrive Range").padLeft(5).wrap().size(280,40);
+                        t.add(main);
+
+                    }).size(368, 0).pad(0,0,0,0).row();
+
+                    cont.table(t -> {
+                        Table subCont = new Table();
+                        subCont.left().top().margin(0,6,0,-6);
+                        Collapser sub = new Collapser(subCont, true);
+                        sub.setDuration(0.1f);
+
+                        Table main = new Table();
+                        main.left().top().margin(0,6,0,0);
+                        main.check("", MinfoVars.ShowTurretRange, var -> {
+                            MinfoVars.ShowTurretRange = !MinfoVars.ShowTurretRange;
+                            if(MinfoVars.ShowTurretRange){
+                                MinfoVars.ShowTurretAirRange = MinfoVars.ShowTurretGroundRange = true;
+                            }else {
+                                MinfoVars.ShowTurretAirRange = MinfoVars.ShowTurretGroundRange = false;
+                            }
+                        }).update(i -> {
+                            i.setChecked(MinfoVars.ShowTurretRange);
+                        });
+                        main.label(() -> "Show Turret Range").padLeft(5).wrap().size(252,40);
+
+                        main.button(Icon.downOpen, Styles.emptyi, () -> sub.toggle(false)).right()
+                            .update(i -> i.getStyle().imageUp = (!sub.isCollapsed() ? Icon.upOpen : Icon.downOpen));
+
+
+
+                        subCont.table(st -> {
+                            Table subMain = new Table();
+                            subMain.left().top().margin(0,6,0,0);
+                            subMain.check("", MinfoVars.ShowTurretGroundRange, var -> {
+                                MinfoVars.ShowTurretGroundRange = !MinfoVars.ShowTurretGroundRange;
+                                if (MinfoVars.ShowTurretGroundRange){
+                                    MinfoVars.ShowTurretRange = true;
+                                }
+                                if (!MinfoVars.ShowTurretAirRange && !MinfoVars.ShowTurretGroundRange){
+                                    MinfoVars.ShowTurretRange = false;
+                                }
+                            }).update(i -> {
+                                i.setChecked(MinfoVars.ShowTurretGroundRange);
+                            });
+                            subMain.label(() -> "Show Target-Ground Turret Range").padLeft(5).wrap().size(260,40);
+                            st.add(subMain);
+                        }).row();
+
+                        subCont.table(st -> {
+                            Table subMain = new Table();
+                            subMain.left().top().margin(0,6,0,0);
+                            subMain.check("", MinfoVars.ShowTurretAirRange, var -> {
+                                MinfoVars.ShowTurretAirRange = !MinfoVars.ShowTurretAirRange;
+                                if (MinfoVars.ShowTurretAirRange){
+                                    MinfoVars.ShowTurretRange = true;
+                                }
+                                if (!MinfoVars.ShowTurretAirRange && !MinfoVars.ShowTurretGroundRange){
+                                    MinfoVars.ShowTurretRange = false;
+                                }
+                            }).update(i -> {
+                                i.setChecked(MinfoVars.ShowTurretAirRange);
+                            });
+                            subMain.label(() -> "Show Target-Air Turret Range").padLeft(5).wrap().size(260,40);
+                            st.add(subMain);
+                        }).row();
+
+                        t.add(main).row();
+                        t.add(sub).row();
+                    }).size(368, 0).pad(0,0,0,0).row();
+
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                    cont.table(t -> {
+                        t.left().top().margin(2,10,2,0);
+                        t.label(() -> "[accent]A Place Holder: ");
+                    }).size(368, 25).pad(0,0,5,0).row();
+                };
+                rebuild.run();
+
                 options.table(t -> {
                     t.setBackground(Tex.pane);
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.label(() -> "[accent]Game Info").top().left().row();
-                    t.button(Icon.warning, Styles.defaulti, () -> {
-                        ui.showInfo("frog");
+                    ScrollPane pane = new ScrollPane(cont, Styles.smallPane);
+                    pane.update(() -> {
+                        if(pane.hasScroll()){
+                            Element result = Core.scene.hit(Core.input.mouseX(), Core.input.mouseY(), true);
+                            if(result == null || !result.isDescendantOf(pane)){
+                                Core.scene.setScrollFocus(null);
+                            }
+                        }
                     });
-                }).size(392, 200);
+                    //pane.cancelTouchFocus();
+                    pane.setScrollingDisabled(true, false);
+                    pane.setOverscroll(false, false);
+                    full.add(pane).maxHeight(265f);
+
+                    t.top().add(full);
+                }).size(392, 265);
             });
             addButton(buttonTable, Icon.save, "2", () -> {
                 options.table(t -> {
@@ -62,10 +217,22 @@ public class MinfoFragment {
                     t.label(() -> "[accent]Anuke").top().left().row();
                 }).size(392, 192);
             });
-            addButton(buttonTable, Icon.redo, "5", () -> {});
-            addButton(buttonTable, Icon.exit, "6", () -> {});
-            addButton(buttonTable, Icon.paste, "7", () -> {});
-            addButton(buttonTable, Icon.edit, "8", () -> {});
+            addButton(buttonTable, Icon.redo, "5", () -> {
+                options.clear();
+                options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
+            });
+            addButton(buttonTable, Icon.exit, "6", () -> {
+                options.clear();
+                options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
+            });
+            addButton(buttonTable, Icon.paste, "7", () -> {
+                options.clear();
+                options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
+            });
+            addButton(buttonTable, Icon.edit, "8", () -> {
+                options.clear();
+                options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
+            });
         }).size(392, 52).marginTop(-2).marginBottom(2);
         buttons.visible(() -> !ui.chatfrag.shown());
 
@@ -95,5 +262,9 @@ public class MinfoFragment {
                 options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
             }}
         );
+    }
+
+    private static void optionAddButton(Table table, Runnable runnable){
+
     }
 }

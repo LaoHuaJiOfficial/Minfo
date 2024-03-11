@@ -17,12 +17,16 @@ public class MinfoShader {
 
     public static RangeShader mendShader;
     public static RangeShader overdriveShader;
+    public static TurretShader turretShader;
+    //public static Shaders.FogShader fogShaderClear;
 
 
 
     public static void init(){
         mendShader = new RangeShader();
         overdriveShader = new RangeShader();
+        turretShader = new TurretShader();
+        //fogShaderClear = new Shaders.FogShader();
     }
 
     public static void load(){
@@ -36,6 +40,12 @@ public class MinfoShader {
             Draw.drawRange(MinfoLayer.overdriveRange, 0.1f, () -> renderer.effectBuffer.begin(Color.clear), () -> {
                 renderer.effectBuffer.end();
                 renderer.effectBuffer.blit(overdriveShader);
+            });
+        }
+        if(renderer.animateShields && turretShader != null) {
+            Draw.drawRange(MinfoLayer.turretRange, 0.1f, () -> renderer.effectBuffer.begin(Color.clear), () -> {
+                renderer.effectBuffer.end();
+                renderer.effectBuffer.blit(turretShader);
             });
         }
 
@@ -55,6 +65,33 @@ public class MinfoShader {
                 Core.camera.position.y - Core.camera.height / 2);
             setUniformf("u_texsize", Core.camera.width, Core.camera.height);
             setUniformf("u_invsize", 1f/Core.camera.width, 1f/Core.camera.height);
+        }
+    }
+
+    public static class TurretShader extends ModShader {
+        public TurretShader(){
+            super("screenspace", "outline");
+        }
+
+        @Override
+        public void apply(){
+            setUniformf("u_dp", Scl.scl(1f));
+            setUniformf("u_time", Time.time / Scl.scl(1f));
+            setUniformf("u_offset",
+                Core.camera.position.x - Core.camera.width / 2,
+                Core.camera.position.y - Core.camera.height / 2);
+            setUniformf("u_texsize", Core.camera.width, Core.camera.height);
+            setUniformf("u_invsize", 1f/Core.camera.width, 1f/Core.camera.height);
+        }
+    }
+    public static class FogShader extends ModShader {
+        public FogShader(){
+            super("default", "screenspace");
+        }
+    }
+    public static class FogShaderClear extends Shaders.LoadShader {
+        public FogShaderClear(){
+            super("screenspace", "default");
         }
     }
 
