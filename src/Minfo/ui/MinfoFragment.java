@@ -54,7 +54,7 @@ public class MinfoFragment {
                     cont.table(t -> {
                         t.left().top().margin(0,10,0,0);
                         t.label(() -> "[accent]Range Indicator: ");
-                    }).size(368, 25).pad(5,0,5,0).row();
+                    }).size(368, 0).pad(5,0,5,0).row();
 
                     cont.table(t -> {
                         Table main = new Table();
@@ -143,37 +143,15 @@ public class MinfoFragment {
                     }).size(368, 0).pad(0,0,0,0).row();
 
                     cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
-                    cont.table(t -> {
-                        t.left().top().margin(2,10,2,0);
-                        t.label(() -> "[accent]A Place Holder: ");
-                    }).size(368, 25).pad(0,0,5,0).row();
+                        Table main = new Table();
+                        main.left().top().margin(0,6,0,0);
+                        main.check("", MinfoVars.DetailMode, var -> {
+                            MinfoVars.DetailMode = !MinfoVars.DetailMode;
+                        });
+                        main.label(() -> "Enable Detail Mode").padLeft(5).wrap().size(280,40);
+                        t.add(main);
+                    }).size(368, 0).pad(0,0,0,0).row();
+
                 };
                 rebuild.run();
 
@@ -234,7 +212,6 @@ public class MinfoFragment {
                 options.table(t -> t.image().color(Pal.gray).size(392, 4)).size(392, 4);
             });
         }).size(392, 52).marginTop(-2).marginBottom(2);
-        buttons.visible(() -> !ui.chatfrag.shown());
 
         group.setMinCheckCount(0);
         group.uncheckAll();
@@ -242,6 +219,8 @@ public class MinfoFragment {
         minfo.bottom().left();
         minfo.add(options).row();
         minfo.add(buttons).row();
+
+        minfo.visible(() -> !ui.chatfrag.shown());
 
         ui.hudGroup.addChild(minfo);
     }

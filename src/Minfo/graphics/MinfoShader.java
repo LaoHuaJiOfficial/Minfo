@@ -18,14 +18,14 @@ public class MinfoShader {
     public static RangeShader mendShader;
     public static RangeShader overdriveShader;
     public static TurretShader turretShader;
+    public static DetailShader detailShader;
     //public static Shaders.FogShader fogShaderClear;
-
-
 
     public static void init(){
         mendShader = new RangeShader();
         overdriveShader = new RangeShader();
         turretShader = new TurretShader();
+        detailShader = new DetailShader();
         //fogShaderClear = new Shaders.FogShader();
     }
 
@@ -48,6 +48,17 @@ public class MinfoShader {
                 renderer.effectBuffer.blit(turretShader);
             });
         }
+
+        //todo use a new EffectBuffer
+        /*
+        if(renderer.animateShields && detailShader != null) {
+            Draw.drawRange(MinfoLayer.detailRange, 10f, () -> renderer.effectBuffer.begin(Color.clear), () -> {
+                renderer.effectBuffer.end();
+                renderer.effectBuffer.blit(detailShader);
+            });
+        }
+
+         */
 
     }
 
@@ -84,6 +95,17 @@ public class MinfoShader {
             setUniformf("u_invsize", 1f/Core.camera.width, 1f/Core.camera.height);
         }
     }
+
+    public static class DetailShader extends ModShader {
+        public DetailShader(){
+            super("screenspace", "detail");
+        }
+        @Override
+        public void apply() {
+            super.apply();
+        }
+    }
+
     public static class FogShader extends ModShader {
         public FogShader(){
             super("default", "screenspace");

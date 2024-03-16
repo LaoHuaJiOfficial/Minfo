@@ -2,10 +2,13 @@ package Minfo.graphics;
 
 import Minfo.MinfoVars;
 import Minfo.util.ReflectionUtils;
+import arc.Core;
+import arc.graphics.Camera;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Fill;
 import arc.graphics.g2d.Lines;
+import arc.input.KeyCode;
 import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.graphics.Layer;
@@ -17,6 +20,7 @@ import mindustry.world.blocks.defense.OverdriveProjector;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.Turret;
 
+import static arc.Core.*;
 import static mindustry.Vars.*;
 
 public class BuildsDraw {
@@ -60,12 +64,31 @@ public class BuildsDraw {
     public static void draw(){
         //load shader
         MinfoShader.load();
+        if (MinfoVars.DetailMode || input.keyDown(KeyCode.altLeft)){
+            Draw.z(MinfoLayer.detailRange - 10f);
+            Draw.color(MinfoPal.DetailBackground);
+            Fill.rect(camera.position.x, camera.position.y, camera.width, camera.height);
+        };
 
         tiles = ReflectionUtils.getValue(ReflectionUtils.getField(renderer.blocks.getClass(), "tileview"), renderer.blocks);
         for (Tile tile: tiles){
             if (tile.build instanceof MendProjector.MendBuild b){drawMender(b);}
             if (tile.build instanceof OverdriveProjector.OverdriveBuild b){drawOverdriver(b);}
             if (tile.build instanceof Turret.TurretBuild b){drawTurret(b);}
+
+            if (MinfoVars.DetailMode || input.keyDown(KeyCode.altLeft)){
+                var b = tile.build;
+                if (b != null){
+                    Draw.z(MinfoLayer.detailRange);
+                    Draw.color(MinfoPal.DetailBlockBase);
+                    Fill.square(b.x, b.y, (b.block.size * tilesize) / 2f);
+                    //Draw.color(b.team().color);
+                    Draw.color(Pal.accent);
+                    Lines.stroke(2f);
+                    Lines.square(b.x, b.y, (b.block.size * tilesize) / 2f - 1f);
+                    Draw.reset();
+                }
+            }
         }
         //todo may add a Fx like ForceShrink?
     }

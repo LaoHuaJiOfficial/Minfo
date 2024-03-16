@@ -1,22 +1,30 @@
 package Minfo;
 
 import Minfo.graphics.BuildsDraw;
+import Minfo.graphics.MinfoMark;
 import Minfo.graphics.MinfoShader;
+import Minfo.graphics.UnitsDraw;
 import Minfo.ui.MinfoFragment;
 import Minfo.util.MinfoVars;
 import Minfo.util.ReflectionUtils;
 import arc.Core;
 import arc.Events;
 import arc.func.Boolf;
+import arc.graphics.g2d.Draw;
+import arc.input.KeyCode;
+import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Time;
 import mindustry.Vars;
+import mindustry.core.World;
 import mindustry.game.EventType;
 import mindustry.game.FogControl;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Groups;
+import mindustry.graphics.Layer;
+import mindustry.graphics.Pal;
 import mindustry.graphics.Shaders;
 import mindustry.mod.Mod;
 import mindustry.mod.Mods;
@@ -39,39 +47,33 @@ public class ModMain extends Mod{
             Core.app.post(BuildsDraw::load);
         });
 
-        /*
-        Events.on(EventType.WorldLoadEvent.class, e -> {
-            Time.run(60f, () -> {
-                Events.run(EventType.Trigger.preDraw, () -> {
-                    //ReflectionUtils.setValue(ReflectionUtils.getField(Shaders.class, "fog"), Shaders.fog, MinfoShader.fogShaderClear);
-
-
-                    if(player.team() != Team.get(255)){
-
-                        Object[] value = ReflectionUtils.getValue(ReflectionUtils.getField(fogControl.getClass(), "fog"), fogControl);
-                        //Object value255 = fogControl.getDiscovered(Team.get(255));
-                        if (value != null){
-                            //Log.info(value.length + " " + (value[0] != null? "true": "false") + " " + (value[1] != null? "true": "false") + " " + (value[2] != null? "true": "false") + " " + (value[3] != null? "true": "false") + " " + (value[4] != null? "true": "false") + " " + (value[5] != null? "true": "false"));
-                            if(value[255] != null){
-
-                            }
-                            value[player.team().id] = null;
-                            ReflectionUtils.setValue(ReflectionUtils.getField(fogControl.getClass(), "fog"), fogControl, null);
-                            //Log.info(value.length + " " + (value[0] != null? "true": "false") + " " + (value[1] != null? "true": "false") + " " + (value[2] != null? "true": "false") + " " + (value[3] != null? "true": "false") + " " + (value[4] != null? "true": "false") + " " + (value[5] != null? "true": "false"));
-                            //Log.info(player.team().id + " changed");
-                        }
-                    }
-                });
+        Events.run(EventType.Trigger.update, () -> {
+            Core.app.post(() -> {
+                if (Core.input.keyTap(KeyCode.l)){
+                    control.input.logicCutscene = true;
+                    control.input.logicCamPan.lerpDelta(new Vec2(World.unconv(250), World.unconv(250)), 2f);
+                    Time.run(120f, () -> control.input.logicCutscene = false);
+                }
             });
         });
 
-         */
-
-        Events.run(EventType.Trigger.draw, BuildsDraw::draw);
+        Events.run(EventType.Trigger.draw, () -> {
+            if (control.input.logicCutscene){
+                Draw.z(Layer.effect);
+                Draw.color(Pal.accent);
+                Draw.rect(MinfoMark.mark, World.unconv(250), World.unconv(250));
+                Draw.reset();
+            }
+        });
+        Events.run(EventType.Trigger.draw, () -> {
+            BuildsDraw.draw();
+            UnitsDraw.draw();
+        });
     }
     @Override
     public void init(){
         MOD = Vars.mods.getMod(getClass());
+        MinfoMark.load();
     }
     @Override
     public void loadContent() {
