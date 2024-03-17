@@ -1,9 +1,7 @@
 package Minfo.graphics;
 
-import Minfo.MinfoVars;
+import Minfo.util.MinfoVars;
 import Minfo.util.ReflectionUtils;
-import arc.Core;
-import arc.graphics.Camera;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Fill;
@@ -64,6 +62,7 @@ public class BuildsDraw {
     public static void draw(){
         //load shader
         MinfoShader.load();
+
         if (MinfoVars.DetailMode || input.keyDown(KeyCode.altLeft)){
             Draw.z(MinfoLayer.detailRange - 10f);
             Draw.color(MinfoPal.DetailBackground);

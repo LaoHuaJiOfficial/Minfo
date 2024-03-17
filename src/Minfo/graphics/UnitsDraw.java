@@ -1,23 +1,18 @@
 package Minfo.graphics;
 
-import Minfo.MinfoVars;
+import Minfo.util.MinfoVars;
 import Minfo.util.MinfoDraw;
 import arc.Core;
 import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Fill;
 import arc.graphics.g2d.Lines;
 import arc.input.KeyCode;
 import arc.math.Mathf;
-import arc.math.geom.Geometry;
-import arc.math.geom.Vec2;
 import arc.util.Tmp;
 import mindustry.entities.Units;
 import mindustry.entities.abilities.Ability;
 import mindustry.entities.abilities.ForceFieldAbility;
-import mindustry.gen.Entityc;
 import mindustry.gen.Groups;
 import mindustry.gen.Unit;
-import mindustry.gen.Unitc;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
 
